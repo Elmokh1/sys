@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-
 import '../../network/api/apiManger.dart';
 import '../homepage/home_page.dart';
 
@@ -97,9 +96,16 @@ class _LoginScreenState extends State<LoginScreen> {
     String password = passwordController.text;
 
     Api.login(email, password).then((data) {
-      // Process the response data as needed
-      Navigator.pushReplacementNamed(context, HomePage.routeName);
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (ctx) => HomePage(
+            emailController: emailController,
+            passwordController: passwordController,
+          ),
+        ),
+      );
     }).catchError((error) {
+      print(error);
       showDialog(
         context: context,
         builder: (ctx) => AlertDialog(

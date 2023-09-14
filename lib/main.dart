@@ -17,7 +17,7 @@ class MyApp extends StatelessWidget {
         LoginScreen.routeName: (context) => LoginScreen(),
         HomePage.routeName: (context) => HomePage(),
       },
-      initialRoute: SplashScreen.routeName,
+      initialRoute: LoginScreen.routeName,
     );
   }
 }

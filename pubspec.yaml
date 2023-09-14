@@ -39,6 +39,7 @@ dependencies:
   google_fonts:
   stop_watch_timer: ^3.0.1
   http:
+  bloc:
 
 
 dev_dependencies:

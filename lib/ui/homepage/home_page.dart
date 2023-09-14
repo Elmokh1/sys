@@ -1,9 +1,38 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:sys/componant/custom_container.dart';
+import 'package:sys/network/api/login/login_model.dart';
+import 'package:stop_watch_timer/stop_watch_timer.dart';
+import 'package:sys/network/api/apiManger.dart';
+import 'package:sys/network/api/check_in/check_in_request.dart';
+import 'package:sys/network/api/check_in/check_in_response.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   static const routeName = "HomePage";
+
+  final TextEditingController? emailController;
+  final TextEditingController? passwordController;
+
+  HomePage({
+    this.emailController,
+    this.passwordController,
+  });
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  final StopWatchTimer _stopwatchTimer = StopWatchTimer();
+  final isHours = true;
+  String? checkinTime;
+  String? checkOutTime;
+
+  @override
+  void dispose() {
+    super.dispose();
+    _stopwatchTimer.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -34,7 +63,7 @@ class HomePage extends StatelessWidget {
                 //   fontSize: 40,
                 // ),
               ),
-              SizedBox(
+              const SizedBox(
                 height: 40,
               ),
               Container(
@@ -75,30 +104,19 @@ class HomePage extends StatelessWidget {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          CustomContainer(
-                            text: "10",
-                          ),
-                          const Text(
-                            ":",
-                            style: TextStyle(fontSize: 30),
-                          ),
-                          CustomContainer(
-                            text: "00",
-                          ),
-                          const Text(
-                            ":",
-                            style: TextStyle(fontSize: 30),
-                          ),
-                          CustomContainer(
-                            text: "00",
-                          ),
-                          const Text(
-                            ":",
-                            style: TextStyle(fontSize: 30),
-                          ),
-                          CustomContainer(
-                            text: "00",
-                          ),
+                          StreamBuilder<int>(
+                              stream: _stopwatchTimer.rawTime,
+                              initialData: _stopwatchTimer.rawTime.value,
+                              builder: (context, snapshot) {
+                                final value = snapshot.data;
+                                final displayTime =
+                                    StopWatchTimer.getDisplayTime(value!,
+                                        hours: isHours);
+                                return Text(displayTime,
+                                    style: const TextStyle(
+                                        fontSize: 40.0,
+                                        fontWeight: FontWeight.bold));
+                              })
                         ],
                       ),
                       const Spacer(),
@@ -107,48 +125,126 @@ class HomePage extends StatelessWidget {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceAround,
                           children: [
-                            Container(
-                              width: 100,
-                              height: 50,
-                              decoration: BoxDecoration(
-                                color: const Color(0xff3ebaaa),
-                                borderRadius: BorderRadius.circular(20),
+                            InkWell(
+                              child: Container(
+                                width: 100,
+                                height: 50,
+                                decoration: BoxDecoration(
+                                  color: const Color(0xff3ebaaa),
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                child: const Center(
+                                    child: Text(
+                                  "check in ",
+                                  style: TextStyle(
+                                    fontSize: 20,
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                )),
                               ),
-                              child: const Center(
-                                  child: Text(
-                                "check in ",
-                                style: TextStyle(
-                                  fontSize: 20,
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              )),
+                              onTap: () {
+                                setState(() {
+                                  CheckIn();
+
+                                  // _stopwatchTimer.onStartTimer();
+                                  // checkinTime = DateTime.now()
+                                  //     .toString()
+                                  //     .substring(10, 19);
+                                });
+                              },
                             ),
-                            const Column(
-                              children: [
-                                Text(
-                                  "Check In",
-                                  style: TextStyle(
-                                    color: Color(0xff95cb96),
-                                  ),
+                            InkWell(
+                              child: Container(
+                                width: 100,
+                                height: 50,
+                                decoration: BoxDecoration(
+                                  color: Colors.red,
+                                  borderRadius: BorderRadius.circular(20),
                                 ),
-                                Text("00:00:00"),
-                              ],
-                            ),
-                            const Column(
-                              children: [
-                                Text(
-                                  "Check out",
+                                child: const Center(
+                                    child: Text(
+                                  "check out",
                                   style: TextStyle(
-                                    color: Colors.red,
+                                    fontSize: 20,
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w500,
                                   ),
-                                ),
-                                Text("00:00:00"),
-                              ],
+                                )),
+                              ),
+                              onTap: () {
+                                setState(() {
+                                  _stopwatchTimer.onStopTimer();
+                                  checkOutTime = DateTime.now()
+                                      .toString()
+                                      .substring(10, 19);
+                                });
+                              },
                             ),
                           ],
                         ),
                       )
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(
+                height: 40,
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Container(
+                  height: 120,
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(25),
+                    color: Colors.cyan,
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Row(
+                          children: [
+                            const Text(
+                              "Check In   : ",
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 25),
+                            ),
+                            Text(
+                              "${checkinTime ?? "00:00:00"}",
+                              style: const TextStyle(
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 25),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Row(
+                          children: [
+                            const Text(
+                              "Check out : ",
+                              style: TextStyle(
+                                  color: Colors.red,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 25),
+                            ),
+                            Text(
+                              "${checkOutTime ?? "00:00:00"}",
+                              style: const TextStyle(
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 25),
+                            ),
+                          ],
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -158,5 +254,96 @@ class HomePage extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  void CheckIn() async {
+    String email = widget.emailController!.text;
+    String password = widget.passwordController!.text;
+    if (email.isEmpty || password.isEmpty) {
+      showDialog(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: Text('Check in Failed'),
+          content: Text('Please enter both email and password.'),
+          actions: [
+            TextButton(
+              child: Text('OK'),
+              onPressed: () {
+                Navigator.of(ctx).pop();
+              },
+            ),
+          ],
+        ),
+      );
+      return;
+    }
+    var response = await Api.login(email, password);
+    String? access_token = response.accessToken;
+    String? id = response.uid.toString(); // تحويل id إلى نص
+
+    // استخدام نموذج استجابة جديد
+    try {
+      var checkInResponse = await Api.checkin(access_token, id);
+      print('Response: ${response}');
+      if (checkInResponse.proje_id != null) {
+        setState(() {
+          showDialog(
+            context: context,
+            builder: (ctx) => AlertDialog(
+              title: Text('Check in Failed'),
+              content: Text(checkInResponse.message??'An error occurred.'),
+              actions: [
+                TextButton(
+                  child: Text('OK'),
+                  onPressed: () {
+                    Navigator.of(ctx).pop();
+                  },
+                ),
+              ],
+            ),
+          );
+        });
+      } else {
+        setState(() {
+          showDialog(
+            context: context,
+            builder: (ctx) => AlertDialog(
+              title: Text('successfully'),
+              content: Text("check in created successfully"),
+              actions: [
+                TextButton(
+                  child: Text('OK'),
+                  onPressed: () {
+                    Navigator.of(ctx).pop();
+                  },
+                ),
+              ],
+            ),
+          );
+          print(checkInResponse.message);
+          _stopwatchTimer.onStartTimer();
+          checkinTime = DateTime.now().toString().substring(10, 19);
+        });
+      }
+    } catch (error) {
+      print(error);
+      setState(() {
+        showDialog(
+          context: context,
+          builder: (ctx) => AlertDialog(
+            title: Text('Check internet'),
+            content: Text("${error.toString()}"),
+            actions: [
+              TextButton(
+                child: Text('OK'),
+                onPressed: () {
+                  Navigator.of(ctx).pop();
+                },
+              ),
+            ],
+          ),
+        );
+      });
+    }
   }
 }
