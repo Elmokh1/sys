@@ -10,7 +10,7 @@ class CheckInResponse {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
+    final Map<String, dynamic> data =  Map<String, dynamic>();
     data['proje_id'] = this.proje_id;
     data['message'] = this.message;
     return data;

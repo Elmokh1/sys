@@ -17,7 +17,8 @@ class LoginModel {
         this.accessToken,
         this.companyName,
         this.country,
-        this.contactAddress});
+        this.contactAddress}
+      );
 
   LoginModel.fromJson(Map<String, dynamic> json) {
     uid = json['uid'];

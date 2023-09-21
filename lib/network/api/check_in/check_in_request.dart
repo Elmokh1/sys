@@ -1,6 +1,3 @@
-
-
-
 class CheckInRequest {
   CheckInRequest({
     this.access_token,
@@ -13,7 +10,7 @@ class CheckInRequest {
   String? access_token;
   String? id;
 
-  Map<String, dynamic> toJson() {
+  Map<String, dynamic> toJsZon() {
     final map = <String, dynamic>{};
     map['access_token'] = access_token;
     map['id'] = id;

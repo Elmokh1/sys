@@ -28,7 +28,7 @@ class Api {
       );
 
       if (response.statusCode == 200) {
-        var responseBody = response.body; // هنا يمكنك الوصول إلى بيانات الاستجابة
+        var responseBody = response.body;
         var loginModel = LoginModel.fromJson(jsonDecode(responseBody));
         return loginModel;
       } else {
@@ -52,11 +52,12 @@ class Api {
       final response = await http.post(
         uri,
         headers: headers,
-        body: body, // استخدم النص كما هو هنا
+        body: body,
       );
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         final checkInResponse = CheckInResponse.fromJson(jsonDecode(response.body));
+        print(response.body);
         return checkInResponse;
       } else {
         throw Exception('Failed to check in - Status Code: ${response.statusCode}');

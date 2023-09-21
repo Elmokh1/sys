@@ -279,9 +279,7 @@ class _HomePageState extends State<HomePage> {
     }
     var response = await Api.login(email, password);
     String? access_token = response.accessToken;
-    String? id = response.uid.toString(); // تحويل id إلى نص
-
-    // استخدام نموذج استجابة جديد
+    String? id = response.uid.toString();
     try {
       var checkInResponse = await Api.checkin(access_token, id);
       print('Response: ${response}');
@@ -291,7 +289,7 @@ class _HomePageState extends State<HomePage> {
             context: context,
             builder: (ctx) => AlertDialog(
               title: Text('Check in Failed'),
-              content: Text(checkInResponse.message??'An error occurred.'),
+              content: Text(checkInResponse.message ?? 'An error occurred.'),
               actions: [
                 TextButton(
                   child: Text('OK'),
@@ -320,7 +318,6 @@ class _HomePageState extends State<HomePage> {
               ],
             ),
           );
-          print(checkInResponse.message);
           _stopwatchTimer.onStartTimer();
           checkinTime = DateTime.now().toString().substring(10, 19);
         });
